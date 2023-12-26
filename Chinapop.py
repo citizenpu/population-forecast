@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Sep 15 14:09:27 2023
-This exercise is based on Carter-Lee model in which the sex ratio at birth is set to be at 0.4734 and
+This exercise is based on the Carter-Lee model in which the sex ratio at birth is set to be at 0.4734 and
 K^t is following a random walk process for both morality and fertility.
-formality is the fuction to predict future morality and forfertility is to predict future fertility
+formality is the function to predict future mortality and forfertility is to predict future fertility
 @author: citiz
 """
 
@@ -13,14 +13,14 @@ from pandas import ExcelWriter
 from statsmodels.tsa.arima.model import ARIMA
 
 class Chinapop():
-	def __init__(self,morality,fertility,ini_population,period):
+	def __init__(self,mortality,fertility,ini_population,period):
 		self.morality=morality[:,1:]/1000
 		self.fertility=fertility[:,1:]/1000
 		self.T=morality.shape[0]
 		self.ini_population=ini_population[:,1:]
 		self.period=period
 
-	def formorality(self):
+	def formortality(self):
 		alpha=np.zeros((1,91))
 		for i in range(91):
 			alpha[0,i]=np.sum(np.log(self.morality),0)[i]/self.T
@@ -31,7 +31,7 @@ class Chinapop():
 		self.m=y
 		self.keym=key
 		yh=np.array(y,ndmin=2).reshape(self.period,1)
-		lhv=np.log(self.morality)-self.alpha
+		lhv=np.log(self.mortality)-self.alpha
 		denominator=np.array(key,ndmin=2) @ np.array(key,ndmin=2).T
 		beta=np.array(key,ndmin=2) @ lhv/denominator
 		tempm=np.exp(np.kron(self.alpha,np.ones((self.period,1)))+np.kron(beta,yh))
@@ -60,16 +60,16 @@ class Chinapop():
 		bd=np.zeros((2,self.period,91))
 		fertility[:,15:50]=self.forfertility()
 		bd[0,0,:]=self.ini_population[:,1]*fertility[0,:]
-		bd[1,0,:]=self.ini_population[:,0]*self.formorality()[0,:]
-		v=self.ini_population-self.formorality()[0,:].reshape(91,1)*self.ini_population
+		bd[1,0,:]=self.ini_population[:,0]*self.formortality()[0,:]
+		v=self.ini_population-self.formortality()[0,:].reshape(91,1)*self.ini_population
 		data[:,0,0]=np.array([np.sum(bd[0,0,:]),0.4734*np.sum(bd[0,0,:])])
 		data[:,0,1:-1]=v[:-2,:].T
 		data[:,0,90]=np.sum(v[-2:,:],0)
 		for i in list(range(self.period))[1:]:
 			bd[0,i,:]=data[1,i-1,:]*fertility[i,:]
-			bd[1,i,:]=data[0,i-1,:]*self.formorality()[i,:]
+			bd[1,i,:]=data[0,i-1,:]*self.formortality()[i,:]
 			data[:,i,0]=np.array([np.sum(bd[0,i,:]),0.4734*np.sum(bd[0,i,:])])
-			v=data[:,i-1,:]-self.formorality()[i,:].reshape(1,91)*data[:,i-1,:]
+			v=data[:,i-1,:]-self.formortality()[i,:].reshape(1,91)*data[:,i-1,:]
 			data[:,i,1:-1]=v[:,:-2]
 			data[:,i,90]=np.sum(v[:,-2:],1)
 		pop=data[0,:,:]
@@ -79,13 +79,13 @@ class Chinapop():
 		return pop, female, birth, death, fertility
 
 if __name__ == '__main__':
-	morality=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\morality.xlsx",sheet_name="ALLwo")
-	morality=morality.to_numpy()
+	mortality=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\morality.xlsx",sheet_name="ALLwo")
+	mortality=morality.to_numpy()
 	fertility=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\fertility.xlsx",sheet_name="ALLwo")
 	fertility=fertility.to_numpy()
 	ini_population=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\Total Population.xlsx",sheet_name="ALLwo")
 	ini_population=ini_population.to_numpy()
-	eiu=Chinapop(morality,fertility,ini_population,30)
+	eiu=Chinapop(mortality,fertility,ini_population,30)
 	head=list(map(str,np.arange(0,91)))
 	date=list(map(str,np.arange(2021,2051)))
 	name=list(['pop','female','birth','death','fertility'])
