@@ -16,16 +16,16 @@ class Chinapop():
 	def __init__(self,mortality,fertility,ini_population,period):
 		self.morality=morality[:,1:]/1000
 		self.fertility=fertility[:,1:]/1000
-		self.T=morality.shape[0]
+		self.T=mortality.shape[0]
 		self.ini_population=ini_population[:,1:]
 		self.period=period
 
 	def formortality(self):
 		alpha=np.zeros((1,91))
 		for i in range(91):
-			alpha[0,i]=np.sum(np.log(self.morality),0)[i]/self.T
+			alpha[0,i]=np.sum(np.log(self.mortality),0)[i]/self.T
 		self.alpha=alpha
-		key=np.sum(np.log(self.morality)-self.alpha,1)
+		key=np.sum(np.log(self.mortality)-self.alpha,1)
 		rsmodel=ARIMA(key,order=(1,0,0)).fit()
 		y=rsmodel.forecast(self.period)
 		self.m=y
