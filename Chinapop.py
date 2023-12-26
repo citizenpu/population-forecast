@@ -3,7 +3,7 @@
 Created on Fri Sep 15 14:09:27 2023
 This exercise is based on the Carter-Lee model in which the sex ratio at birth is set to be at 0.4734 and
 K^t is following a random walk process for both morality and fertility.
-formality is the function to predict future mortality and forfertility is to predict future fertility
+formortality is the function to predict future mortality and forfertility is to predict future fertility
 @author: citiz
 """
 
