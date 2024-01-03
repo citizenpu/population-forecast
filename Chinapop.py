@@ -79,7 +79,7 @@ class Chinapop():
 		return pop, female, birth, death, fertility
 
 if __name__ == '__main__':
-	mortality=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\morality.xlsx",sheet_name="ALLwo")
+	mortality=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\mortality.xlsx",sheet_name="ALLwo")
 	mortality=morality.to_numpy()
 	fertility=pd.read_excel(r"C:\Users\citiz\Downloads\Chinapop\fertility.xlsx",sheet_name="ALLwo")
 	fertility=fertility.to_numpy()
