@@ -9,6 +9,7 @@ sfil = Dir
 i = i + 1
 Loop
 End Sub
+
 #use solver to feed the forecasts into the workbooks
 Sub macromuni_c()
 'to facilitate column operations
@@ -30,6 +31,7 @@ For n = 26 To 26
     Next m
 Next n
 End Sub
+
 #use goseek to feed the forecasts into the workbooks
 Sub macroseek()
 'to facilitate row operations
@@ -47,6 +49,7 @@ For m = 944 To 950
     Next n
 Next m
 End Sub
+
 #save all the changes made to the workbooks
 Sub macrosave()
 Dim wb As Workbook
@@ -56,6 +59,7 @@ For Each wb In Application.Workbooks
     End If
 Next wb
 End Sub
+
 #for second check
 Sub macrocolor1()
 Workbooks("Prefecture_Central").Activate
@@ -68,6 +72,7 @@ For i = m To n
     End If
 Next i
 End Sub
+
 #for second check
 Sub macrocolor2()
 Workbooks("Prefecture_Central").Activate
