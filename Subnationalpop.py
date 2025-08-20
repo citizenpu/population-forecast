@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 19 14:04:13 2025
+
+@author: citiz
+"""
+
 import pandas as pd 
 import numpy as np 
 from scipy.optimize import minimize  
@@ -5,13 +12,13 @@ import openpyxl
 # Load dataset
 df = pd.read_excel('C:/Users/citiz/Downloads/raw data.xlsx', header=0)  
 df=df.rename(columns={'Unnamed: 0':"province",'Unnamed: 1':"city"})
-df.iloc[:,2:]=df.iloc[:,2:].astype(float)
 df.iloc[:,2:] = df.iloc[:,2:].apply(pd.to_numeric, errors='coerce')
 # Compute 2035 growth rates
 df['g2035'] = (df[2035] - df[2034]) / df[2034] 
+df.dropna(subset=[2035,"g2035"],inplace=True)
 df['totpop2035']=np.nan
-
-
+df['totpop2036']=np.nan
+df['2036']=np.nan
 
 
 # === Define province targets ===
@@ -26,7 +33,7 @@ for province, group in df.groupby('province'):
 results = []
 
 for province, province_df in df.groupby('province'):
-    if province in ['Hainan','Sichuan']:
+    if province in ['Hainan','Tibet']:
         continue
     print(f"\n=== Processing province: {province} ===")
     print(f"Number of cities: {len(province_df)}")
@@ -54,7 +61,7 @@ for province, province_df in df.groupby('province'):
     for i in range(n):
         constraints.append({
             'type': 'ineq',
-            'fun': lambda x, i=i: province_df["g2035"].iloc[i] - ((x[i] - province_df[2035].iloc[i]) / province_df[2035].iloc[i]) - 1e-5
+            'fun': lambda x, i=i: province_df["g2035"].iloc[i] - ((x[i] - province_df[2035].iloc[i]) / province_df[2035].iloc[i]) - 0.0005
         })
     
     # 3. Ranking preservation (within province)
@@ -76,12 +83,6 @@ for province, province_df in df.groupby('province'):
             'fun': lambda x, i=i: ((x[i] - province_df[2035].iloc[i]) / province_df[2035].iloc[i]) - (province_df["g2035"].iloc[i] - 0.02)
         })
     
-    for i in range(n):
-        constraints.append({
-            'type': 'ineq',
-            'fun': lambda x, i=i: (province_df["g2035"].iloc[i] - 0.0005) - ((x[i] - province_df[2035].iloc[i]) / province_df[2035].iloc[i])
-        })
-    
     # === Initial guess: 2035 * (1 + g2035) ===
     x0 = province_df[2035].values * (1 + province_df['g2035'].values)  
     
@@ -90,9 +91,11 @@ for province, province_df in df.groupby('province'):
     
     # === Collect results ===
     if result.success:
-        province_df["2036"] = np.round(result.x).astype(int)
+        province_df["2036"] = result.x
         province_df["g2036"] = (province_df["2036"] - province_df[2035]) / province_df[2035]
         province_df["gap_%"] = 100 * (province_df["g2036"] - province_df["g2035"])
+        province_df['totpop2036']=province_df["2036"].sum()
+        
         
         print(f"✅ Optimization successful for {province}!")
         print(f"Province 2036 population: {province_df['2036'].sum():,.2f}")
@@ -131,10 +134,18 @@ for province, province_df in df.groupby('province'):
         # Fallback: use projected growth
         province_df["2036"] = np.round(province_df[2035] * (1 + province_df['g2035'])).astype(int)
         results.append(province_df)
+        # change the raw data set
+    df.loc[df["province"]== province,"2036"] = province_df["2036"].values
+    df.loc[df["province"]== province,"g2036"] = province_df["g2036"].values
+    df.loc[df["province"]== province,"gap_%"] = province_df["gap_%"].values
+    df.loc[df["province"]== province,"totpop2036"] = province_df['totpop2036'].values
 
 # Combine all province results
-final_df = pd.concat(results, ignore_index=True)
+#final_df = pd.concat(results, ignore_index=True)
 
 # Save results
-final_df.to_excel("C:/Users/citiz/Downloads/raw data1.xlsx")
+#final_df.to_excel("C:/Users/citiz/Downloads/final_df.xlsx")
+df.to_excel("C:/Users/citiz/Downloads/df_final.xlsx")
+
+
 
