@@ -82,3 +82,4 @@ for i in range(3):
 	lmatrix,rmatrix=lp(args1,args2,ini_value)
 	print(fgr.x[1:])
 #alter the constraints or the minimizer to check if a better solution can be obtained
+
