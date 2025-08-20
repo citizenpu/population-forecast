@@ -147,5 +147,3 @@ for province, province_df in df.groupby('province'):
 #final_df.to_excel("C:/Users/citiz/Downloads/final_df.xlsx")
 df.to_excel("C:/Users/citiz/Downloads/df_final.xlsx")
 
-
-
