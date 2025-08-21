@@ -39,7 +39,7 @@ for province, province_df in df.groupby('province'):
     print(f"Number of cities: {len(province_df)}")
     print(f"Province target: {province_targets[province]:,.2f}")
     
-    # Reset index for current province
+    # Reset index for current province. The reset will impact a step further down in line 138.
     province_df = province_df.reset_index(drop=True)
     n = len(province_df)
     
@@ -134,7 +134,7 @@ for province, province_df in df.groupby('province'):
         # Fallback: use projected growth
         province_df["2036"] = np.round(province_df[2035] * (1 + province_df['g2035'])).astype(int)
         results.append(province_df)
-        # change the raw data set
+    # change the raw data set. Note here we use df. values instead of df, this is because if we did this way, the match will take place based on the index of the two dataframes (absolute positions), whereas by using the atrribute of values, we match by their relative positions. 
     df.loc[df["province"]== province,"2036"] = province_df["2036"].values
     df.loc[df["province"]== province,"g2036"] = province_df["g2036"].values
     df.loc[df["province"]== province,"gap_%"] = province_df["gap_%"].values
